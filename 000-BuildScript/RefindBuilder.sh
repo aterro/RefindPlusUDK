@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ###
- # RefindPlusBuilder.sh
- # A script to build RefindPlus
+RefindBuilder
+ # A script to build rEFInd
  #
  # Copyright (c) 2020-2025 Dayo Akanji
  # MIT-0 License
@@ -90,7 +90,7 @@ trap trapINT SIGINT
 ORIG_PATH="${PATH}"
 DONE_ONE="False"
 
-BUILD_BRANCH="${1:-Full}"
+BUILD_BRANCH="${1:-edk2-gcc}"
 DEBUG_TYPE="${2:-SOME}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
@@ -98,26 +98,27 @@ if [ "${WORD_WRAP}" == '0' ] ; then
     tput rmam
 fi
 
+# Force RELEASE build only
 RUN_REL="True"
 RUN_DBG="False"
 RUN_NPT="False"
-BUILD_TYPE=$( echo $DEBUG_TYPE | tr '[:lower:]' '[:upper:]' )
-if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
-    RUN_REL="False"
-fi
-if [ "${BUILD_TYPE}" == 'REL' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
-    RUN_DBG="False"
-fi
-if [ "${BUILD_TYPE}" == 'ALL' ] || [ "${BUILD_TYPE}" == 'NPT' ] \
-|| ([ "${BUILD_TYPE}" != 'REL' ] && [ "${BUILD_TYPE}" != 'DBG' ] && \
-    [ "${BUILD_TYPE}" != 'SOME' ]) ; then
-    RUN_NPT="True"
-fi
+# BUILD_TYPE=$( echo $DEBUG_TYPE | tr '[:lower:]' '[:upper:]' )
+# if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
+#     RUN_REL="False"
+# fi
+# if [ "${BUILD_TYPE}" == 'REL' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
+#     RUN_DBG="False"
+# fi
+# if [ "${BUILD_TYPE}" == 'ALL' ] || [ "${BUILD_TYPE}" == 'NPT' ] \
+# || ([ "${BUILD_TYPE}" != 'REL' ] && [ "${BUILD_TYPE}" != 'DBG' ] && \
+#     [ "${BUILD_TYPE}" != 'SOME' ]) ; then
+#     RUN_NPT="True"
+# fi
 
 
 # Set things up for build
 clear
-msg_info "## RefindPlusBuilder - Setting Up ##  :  ${BUILD_BRANCH}"
+msg_info "## RefindBuilder - Setting Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------##'
 BASE_DIR="${HOME}/Documents/RefindPlus"
 WORK_DIR="${BASE_DIR}/Working"
@@ -125,9 +126,9 @@ EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
     runErr "ERROR: Could not locate ${EDK2_DIR}"
 fi
-XCODE_DIR_REL="${EDK2_DIR}/Build/RefindPlus/RELEASE_GCC5"
-XCODE_DIR_DBG="${EDK2_DIR}/Build/RefindPlus/DEBUG_GCC5"
-XCODE_DIR_NPT="${EDK2_DIR}/Build/RefindPlus/NOOPT_GCC5"
+XCODE_DIR_REL="${EDK2_DIR}/Build/Refind/RELEASE_GCC5"
+XCODE_DIR_DBG="${EDK2_DIR}/Build/Refind/DEBUG_GCC5"
+XCODE_DIR_NPT="${EDK2_DIR}/Build/Refind/NOOPT_GCC5"
 BINARY_DIR_REL="${XCODE_DIR_REL}/X64"
 BINARY_DIR_DBG="${XCODE_DIR_DBG}/X64"
 BINARY_DIR_NPT="${XCODE_DIR_NPT}/X64"
@@ -167,23 +168,7 @@ msg_base 'Export Temp "PATH"...'
 export PATH="/usr/bin:/opt/local/bin:/opt/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:${PATH}"
 msg_status '...OK'; echo ''
 
-ErrMsg="ERROR: Could not find '${WORK_DIR}'"
-pushd "${WORK_DIR}" > /dev/null || runErr "${ErrMsg}"
-msg_base "Checkout '${BUILD_BRANCH}' branch..."
-git checkout ${BUILD_BRANCH} > /dev/null
-popd > /dev/null || true
-msg_status '...OK'; echo ''
 
-msg_base 'Update RefindPlusPkg...'
-# Remove Later - START #
-rm -fr "${EDK2_DIR}/RefindPkg"
-rm -fr "${EDK2_DIR}/.Build-TMP"
-# Remove Later - END #
-if [ ! -L "${EDK2_DIR}/RefindPlusPkg" ]; then
-	rm -fr "${EDK2_DIR}/RefindPlusPkg"
-    ln -s "${WORK_DIR}" "${EDK2_DIR}/RefindPlusPkg"
-fi
-msg_status '...OK'; echo ''
 
 # Enter EDK2 Dir - START #
 ErrMsg="ERROR: Could not enter '${EDK2_DIR}'"
@@ -260,7 +245,7 @@ popd > /dev/null || true
 # Basic clean up
 echo ''
 clear
-msg_info "## RefindPlusBuilder - Initial Clean Up ##  :  ${BUILD_BRANCH}"
+msg_info "## RefindBuilder - Initial Clean Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------------##'
 msg_base 'Misc Item Fixup...'
 rm -fr "${EDK2_DIR}/Build"
@@ -268,23 +253,24 @@ rm -fr "${OUTPUT_DIR}"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
+ln -sf "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
 
 # Build RELEASE version
 if [ "${RUN_REL}" == 'True' ] ; then
     echo ''
     clear
-    msg_info "## RefindPlusBuilder - Building REL Version ##  :  ${BUILD_BRANCH}"
+    msg_info "## RefindBuilder - Building REL Version ##  :  ${BUILD_BRANCH}"
     msg_info '##------------------------------------------##'
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b RELEASE -t GCC5 -p RefindPkg/RefindPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
-        cp "${BINARY_DIR_REL}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-REL.efi"
+        cp "${BINARY_DIR_REL}/refind.efi" "${OUTPUT_DIR}/BOOTx64-REL.efi"
     fi
     for file in "${BINARY_DIR_REL}"/*.efi; do
         filetag=$(basename "${file%.efi}")
-        if [[ "${filetag}" == 'gptsync' || "${filetag}" == 'RefindPlus' ]]; then
+        if [[ "${filetag}" == 'gptsync' || "${filetag}" == 'refind' ]]; then
             mv "${file}" "${BINARY_DIR_REL}/x64_${filetag}_REL.efi"
         else
             mv "${file}" "${BINARY_DIR_REL}/DRIVER_REL--x64_${filetag}.efi"
@@ -292,7 +278,7 @@ if [ "${RUN_REL}" == 'True' ] ; then
     done
     popd > /dev/null || true
     echo ''
-    msg_info "Completed REL Build on '${BUILD_BRANCH}' Branch of RefindPlus"
+    msg_info "Completed REL Build on '${BUILD_BRANCH}' Branch of Refind"
     DONE_ONE="True"
 fi
 
@@ -306,18 +292,18 @@ if [ "${RUN_DBG}" == 'True' ] ; then
     fi
 
     clear
-    msg_info "## RefindPlusBuilder - Building DBG Version ##  :  ${BUILD_BRANCH}"
+    msg_info "## RefindBuilder - Building DBG Version ##  :  ${BUILD_BRANCH}"
     msg_info '##------------------------------------------##'
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b DEBUG -t GCC5 -p RefindPkg/RefindPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
-        cp -f "${BINARY_DIR_DBG}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-DBG.efi"
+        cp -f "${BINARY_DIR_DBG}/refind.efi" "${OUTPUT_DIR}/BOOTx64-DBG.efi"
     fi
     for file in "${BINARY_DIR_DBG}"/*.efi; do
         filetag=$(basename "${file%.efi}")
-        if [[ "${filetag}" == 'gptsync' || "${filetag}" == 'RefindPlus' ]]; then
+        if [[ "${filetag}" == 'gptsync' || "${filetag}" == 'refind' ]]; then
             mv "${file}" "${BINARY_DIR_DBG}/x64_${filetag}_DBG.efi"
         else
             mv "${file}" "${BINARY_DIR_DBG}/DRIVER_DBG--x64_${filetag}.efi"
@@ -325,7 +311,7 @@ if [ "${RUN_DBG}" == 'True' ] ; then
     done
     popd > /dev/null || true
     echo ''
-    msg_info "Completed DBG Build on '${BUILD_BRANCH}' Branch of RefindPlus"
+    msg_info "Completed DBG Build on '${BUILD_BRANCH}' Branch of Refind"
     DONE_ONE="True"
 fi
 
@@ -339,18 +325,18 @@ if [ "${RUN_NPT}" == 'True' ] ; then
     fi
 
     clear
-    msg_info "## RefindPlusBuilder - Building NPT Version ##  :  ${BUILD_BRANCH}"
+    msg_info "## RefindBuilder - Building NPT Version ##  :  ${BUILD_BRANCH}"
     msg_info '##------------------------------------------##'
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b NOOPT -t GCC5 -p RefindPkg/RefindPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
-        cp -f "${BINARY_DIR_NPT}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-NPT.efi"
+        cp -f "${BINARY_DIR_NPT}/refind.efi" "${OUTPUT_DIR}/BOOTx64-NPT.efi"
     fi
     for file in "${BINARY_DIR_NPT}"/*.efi; do
         filetag=$(basename "${file%.efi}")
-        if [[ "${filetag}" == 'gptsync' || "${filetag}" == 'RefindPlus' ]]; then
+        if [[ "${filetag}" == 'gptsync' || "${filetag}" == 'refind' ]]; then
             mv "${file}" "${BINARY_DIR_NPT}/x64_${filetag}_NPT.efi"
         else
             mv "${file}" "${BINARY_DIR_NPT}/DRIVER_NPT--x64_${filetag}.efi"
@@ -358,7 +344,7 @@ if [ "${RUN_NPT}" == 'True' ] ; then
     done
     popd > /dev/null || true
     echo ''
-    msg_info "Completed NPT Build on '${BUILD_BRANCH}' Branch of RefindPlus"
+    msg_info "Completed NPT Build on '${BUILD_BRANCH}' Branch of Refind"
     DONE_ONE="True"
 fi
 
@@ -368,16 +354,16 @@ echo ''
 echo ''
 msg_info 'Locate the EFI Files:'
 if [ -d "${EDK2_DIR}/Build" ] ; then
-    msg_status "RefindPlus EFI Files (BOOTx64)      : '${OUTPUT_DIR}'"
+    msg_status "Refind EFI Files (BOOTx64)      : '${OUTPUT_DIR}'"
 fi
 if [ "${RUN_NPT}" == 'True' ] ; then
-    msg_status "RefindPlus EFI Files (Others - NPT) : '${XCODE_DIR_NPT}/X64'"
+    msg_status "Refind EFI Files (Others - NPT) : '${XCODE_DIR_NPT}/X64'"
 fi
 if [ "${RUN_DBG}" == 'True' ] ; then
-    msg_status "RefindPlus EFI Files (Others - DBG) : '${XCODE_DIR_DBG}/X64'"
+    msg_status "Refind EFI Files (Others - DBG) : '${XCODE_DIR_DBG}/X64'"
 fi
 if [ "${RUN_REL}" == 'True' ] ; then
-    msg_status "RefindPlus EFI Files (Others - REL) : '${XCODE_DIR_REL}/X64'"
+    msg_status "Refind EFI Files (Others - REL) : '${XCODE_DIR_REL}/X64'"
 fi
 echo ''
 echo ''

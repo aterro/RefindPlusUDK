@@ -90,7 +90,7 @@ trap trapINT SIGINT
 ORIG_PATH="${PATH}"
 DONE_ONE="False"
 
-BUILD_BRANCH="${1:-Full}"
+BUILD_BRANCH="${1:-GOPFix}"
 DEBUG_TYPE="${2:-SOME}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
