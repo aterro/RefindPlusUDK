@@ -90,7 +90,7 @@ trap trapINT SIGINT
 ORIG_PATH="${PATH}"
 DONE_ONE="False"
 
-BUILD_BRANCH="${1:-Full}"
+BUILD_BRANCH="${1:-0132AG}"
 DEBUG_TYPE="${2:-SOME}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
@@ -99,7 +99,7 @@ if [ "${WORD_WRAP}" == '0' ] ; then
 fi
 
 RUN_REL="True"
-RUN_DBG="False"
+RUN_DBG="True"
 RUN_NPT="False"
 BUILD_TYPE=$( echo $DEBUG_TYPE | tr '[:lower:]' '[:upper:]' )
 if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
@@ -175,6 +175,10 @@ popd > /dev/null || true
 msg_status '...OK'; echo ''
 
 msg_base 'Update RefindPlusPkg...'
+# Remove Later - START #
+rm -fr "${EDK2_DIR}/RefindPkg"
+rm -fr "${EDK2_DIR}/.Build-TMP"
+# Remove Later - END #
 if [ ! -L "${EDK2_DIR}/RefindPlusPkg" ]; then
 	rm -fr "${EDK2_DIR}/RefindPlusPkg"
     ln -s "${WORK_DIR}" "${EDK2_DIR}/RefindPlusPkg"

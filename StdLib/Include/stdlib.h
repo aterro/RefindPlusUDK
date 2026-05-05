@@ -617,7 +617,7 @@ void   *calloc(size_t Num, size_t Size);
 
     @param  Ptr     Pointer to a previously allocated region of memory to be freed.
 **/
-void    free(void *Ptr);
+void EFIAPI free(void *Ptr);
 
 /** The malloc function allocates space for an object whose size is specified
     by size and whose value is indeterminate.
@@ -635,7 +635,7 @@ void    free(void *Ptr);
               - EINVAL: Requested Size is zero.
               - ENOMEM: Memory could not be allocated.
 **/
-void   *malloc(size_t Size);
+void EFIAPI *malloc(size_t Size);
 
 /** The realloc function changes the size of the object pointed to by Ptr to
     the size specified by NewSize.
