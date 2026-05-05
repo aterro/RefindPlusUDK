@@ -99,7 +99,7 @@ if [ "${WORD_WRAP}" == '0' ] ; then
 fi
 
 RUN_REL="True"
-RUN_DBG="True"
+RUN_DBG="False"
 RUN_NPT="False"
 BUILD_TYPE=$( echo $DEBUG_TYPE | tr '[:lower:]' '[:upper:]' )
 if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
