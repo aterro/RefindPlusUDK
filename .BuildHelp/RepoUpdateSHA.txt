@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+##-------------------------##
+## Do *NOT* Edit This File ##
+##-------------------------##
+
+REFIND_UDK_SHA='698e17ed62ef015564de138e902c9dc4356a1b6b'
+REFINDPLUS_SHA='9a0c324295c5077d8acdb91252da87aa6b5ccb2d'
