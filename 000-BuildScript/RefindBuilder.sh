@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ###
-RefindBuilder
- # A script to build rEFInd
+# RefindBuilder
+# A script to build rEFInd
  #
  # Copyright (c) 2020-2025 Dayo Akanji
  # MIT-0 License
@@ -253,6 +253,13 @@ rm -fr "${OUTPUT_DIR}"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
+
+msg_base 'Checkout edk2-gcc branch...'
+pushd "${BASE_DIR}/rEFInd-for-All" > /dev/null || runErr "ERROR: Could not enter rEFInd-for-All"
+git checkout edk2-gcc
+popd > /dev/null || true
+msg_status '...OK'; echo ''
+
 ln -sf "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
 
 # Build RELEASE version
