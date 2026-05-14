@@ -120,7 +120,7 @@ RUN_NPT="False"
 clear
 msg_info "## RefindBuilder - Setting Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------##'
-BASE_DIR="${HOME}/Documents/RefindPlus"
+BASE_DIR="$(dirname "$(dirname "$(dirname "$(readlink -f "$0")")")")"
 WORK_DIR="${BASE_DIR}/Working"
 EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
@@ -250,6 +250,7 @@ msg_info '##--------------------------------------##'
 msg_base 'Misc Item Fixup...'
 rm -fr "${EDK2_DIR}/Build"
 rm -fr "${OUTPUT_DIR}"
+rm -f "${EDK2_DIR}/Conf/BuildEnv.sh"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
