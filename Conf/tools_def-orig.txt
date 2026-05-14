@@ -5512,13 +5512,13 @@ RELEASE_GCC5_IA32_DLINK_FLAGS    = DEF(GCC5_IA32_X64_DLINK_FLAGS) -flto -Os -Wl,
 *_GCC5_X64_OBJCOPY_FLAGS         =
 *_GCC5_X64_NASM_FLAGS            = -f elf64
 
-  DEBUG_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+  DEBUG_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os
   DEBUG_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto -Os
 
-RELEASE_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-unused-but-set-variable -Wno-unused-const-variable -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type
+RELEASE_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-unused-but-set-variable -Wno-unused-const-variable
 RELEASE_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto -Os
 
-  NOOPT_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+  NOOPT_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -O0
   NOOPT_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -O0
 
 ##################
