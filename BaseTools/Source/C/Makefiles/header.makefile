@@ -87,6 +87,11 @@ BUILD_CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -Wall -Wno-error -Wno-depr
 endif
 BUILD_LFLAGS =
 BUILD_CXXFLAGS = -Wno-unused-result -Wno-error
+# Suppress warnings raised by newer GCC versions within the BaseTools sources
+# Note: '-Wno-register' is C++ only ... Adding it to 'BUILD_CFLAGS' would
+#       itself raise a warning for every C source compiled
+BUILD_CFLAGS   += -Wno-stringop-truncation -Wno-format-overflow -Wno-dangling-pointer -Wno-use-after-free
+BUILD_CXXFLAGS += -Wno-register -Wno-stringop-truncation -Wno-format-overflow -Wno-dangling-pointer -Wno-use-after-free
 
 ifeq ($(HOST_ARCH), IA32)
 #
