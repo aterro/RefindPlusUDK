@@ -9,7 +9,12 @@ compile_commands.json
 RefindPlusPkg
 000-Releases/
 BaseToolsSHA.txt
-
+000-BuildScript/Buildmenow.bat
+000-BuildScript/RefindPlus-Builder.bat
+000-BuildScript/RefindPlusBuilder-0132.sh
+Working
+basetools
+RefindPkg
 # OS generated files #
 ######################
 .DS_Store
@@ -19,3 +24,6 @@ BaseToolsSHA.txt
 .Trashes
 ehthumbs.db
 Thumbs.db
+AGENTS.md
+FOXCONN_INVESTIGATION.md
+GEMINI.md
