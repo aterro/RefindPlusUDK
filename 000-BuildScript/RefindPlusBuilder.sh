@@ -7,6 +7,13 @@
  # MIT-0 License
 ###
 
+# Re-Exec with Bash if invoked via a non-Bash shell (e.g. 'sh RefindPlusBuilder.sh').
+# This script relies on Bash-only features (pushd/popd, 'trap ERR', '[ x == y ]')
+# and on edksetup.sh / BaseTools/BuildEnv, which are themselves Bash-only.
+if [ -z "${BASH_VERSION:-}" ] ; then
+    exec /usr/bin/env bash "$0" "$@"
+fi
+
 COLOR_BASE=""
 COLOR_INFO=""
 COLOR_STATUS=""
@@ -90,7 +97,7 @@ trap trapINT SIGINT
 ORIG_PATH="${PATH}"
 DONE_ONE="False"
 
-BUILD_BRANCH="${1:-GOPFix}"
+BUILD_BRANCH="${1:-Full}"
 DEBUG_TYPE="${2:-SOME}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
@@ -99,7 +106,7 @@ if [ "${WORD_WRAP}" == '0' ] ; then
 fi
 
 RUN_REL="True"
-RUN_DBG="True"
+RUN_DBG="False"
 RUN_NPT="False"
 BUILD_TYPE=$( echo $DEBUG_TYPE | tr '[:lower:]' '[:upper:]' )
 if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
@@ -107,6 +114,9 @@ if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
 fi
 if [ "${BUILD_TYPE}" == 'REL' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
     RUN_DBG="False"
+fi
+if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'ALL' ] ; then
+    RUN_DBG="True"
 fi
 if [ "${BUILD_TYPE}" == 'ALL' ] || [ "${BUILD_TYPE}" == 'NPT' ] \
 || ([ "${BUILD_TYPE}" != 'REL' ] && [ "${BUILD_TYPE}" != 'DBG' ] && \
@@ -125,9 +135,9 @@ EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
     runErr "ERROR: Could not locate ${EDK2_DIR}"
 fi
-XCODE_DIR_REL="${EDK2_DIR}/Build/RefindPlus/RELEASE_XCODE5"
-XCODE_DIR_DBG="${EDK2_DIR}/Build/RefindPlus/DEBUG_XCODE5"
-XCODE_DIR_NPT="${EDK2_DIR}/Build/RefindPlus/NOOPT_XCODE5"
+XCODE_DIR_REL="${EDK2_DIR}/Build/RefindPlus/RELEASE_GCC5"
+XCODE_DIR_DBG="${EDK2_DIR}/Build/RefindPlus/DEBUG_GCC5"
+XCODE_DIR_NPT="${EDK2_DIR}/Build/RefindPlus/NOOPT_GCC5"
 BINARY_DIR_REL="${XCODE_DIR_REL}/X64"
 BINARY_DIR_DBG="${XCODE_DIR_DBG}/X64"
 BINARY_DIR_NPT="${XCODE_DIR_NPT}/X64"
@@ -278,7 +288,7 @@ if [ "${RUN_REL}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b RELEASE -t XCODE5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp "${BINARY_DIR_REL}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-REL.efi"
     fi
@@ -311,7 +321,7 @@ if [ "${RUN_DBG}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b DEBUG -t XCODE5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_DBG}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-DBG.efi"
     fi
@@ -344,7 +354,7 @@ if [ "${RUN_NPT}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b NOOPT -t XCODE5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_NPT}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-NPT.efi"
     fi
