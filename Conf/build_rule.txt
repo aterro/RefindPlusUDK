@@ -319,7 +319,13 @@
         "$(SLINK)" $(SLINK_FLAGS) ${dst} $(OBJECT_FILES)
 
     <Command.XCODE>
-        "$(SLINK)" $(SLINK_FLAGS) ${dst} -filelist $(OBJECT_FILES_LIST)
+        # NOTE: 'ar' is used here (instead of 'libtool') because 'libtool'
+        #       emits a "duplicate member name" warning whenever a module
+        #       holds both generic and architecture-specific sources that
+        #       share the same base name (e.g. 'LongJump.c' and
+        #       'X64/LongJump.asm') ... The object list is passed directly
+        #       as 'ar' does not support the '-filelist' option
+        "$(SLINK)" $(SLINK_FLAGS) ${dst} $(OBJECT_FILES)
 
 [Static-Library-File]
     <InputFile>
@@ -431,7 +437,10 @@
         # tool to convert Mach-O to PE/COFF
         "$(MTOC)" -subsystem $(MODULE_TYPE)  $(MTOC_FLAGS)  ${src}  $(DEBUG_DIR)(+)$(MODULE_NAME).pecoff
         # create symbol file for GDB debug
-        -$(DSYMUTIL) ${src}
+        # NOTE: 'dsymutil' is skipped for build targets that carry no debug
+        #       information (i.e. RELEASE) ... Otherwise it emits a
+        #       "no debug symbols in executable" warning for every module
+        -if [ "$(TARGET)" != "RELEASE" ] ; then $(DSYMUTIL) ${src} ; fi
         "$(GENFW)" -e $(MODULE_TYPE) -o ${dst} $(DEBUG_DIR)(+)$(MODULE_NAME).pecoff $(GENFW_FLAGS)
         $(CP) ${dst} $(OUTPUT_DIR)
         $(CP) ${dst} $(BIN_DIR)(+)$(MODULE_NAME_GUID).efi

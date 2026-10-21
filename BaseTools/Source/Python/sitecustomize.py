@@ -14,7 +14,15 @@ import sys
 import locale
 
 if sys.platform == "darwin":
-  DefaultLocal = locale.getdefaultlocale()[1]
+  # NOTE: 'locale.getdefaultlocale()' raises a 'ValueError' when the
+  #       environment holds a locale name that Python 2 cannot parse
+  #       (e.g. 'LC_CTYPE=UTF-8') ... Handle it, as an unhandled failure
+  #       here makes Python print "'import sitecustomize' failed" on every
+  #       invocation and also prevents the default encoding from being set
+  try:
+    DefaultLocal = locale.getdefaultlocale()[1]
+  except ValueError:
+    DefaultLocal = 'UTF8'
   if DefaultLocal is None:
     DefaultLocal = 'UTF8'  
   sys.setdefaultencoding(DefaultLocal)

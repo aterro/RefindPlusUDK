@@ -25,6 +25,13 @@ OBJECTS = AParser.o DLexerBase.o ATokenBuffer.o EfiVfrParser.o VfrLexer.o VfrSyn
 
 VFR_CPPFLAGS = -DPCCTS_USE_NAMESPACE_STD $(BUILD_CPPFLAGS) $(UDK_CXXFLAGS)
 
+# The Antlr parser generator reports grammar warnings for the upstream
+# VfrSyntax.g (e.g. "predicate: LT(i) missing" and "alts 1 and 2 of {..}
+# ambiguous"). These are harmless upstream grammar notes, not build
+# problems. Filter them out of the build log. The pattern is exported so
+# that the recursive make in Pccts/antlr/makefile can use it too.
+export ANTLR_WARN_PATTERN = ^VfrSyntax\.g, line .*: warning:
+
 LINKER = $(BUILD_CXX)
 
 EXTRA_CLEAN_OBJECTS = EfiVfrParser.cpp EfiVfrParser.h VfrParser.dlg VfrTokens.h VfrLexer.cpp VfrLexer.h VfrSyntax.cpp tokens.h
@@ -46,7 +53,7 @@ VfrCompiler.o: ../Include/Common/BuildVersion.h
 include $(MAKEROOT)/Makefiles/footer.makefile
 
 VfrSyntax.cpp EfiVfrParser.cpp EfiVfrParser.h VfrParser.dlg VfrTokens.h: Pccts/antlr/antlr VfrSyntax.g
-	Pccts/antlr/antlr -CC -e3 -ck 3 -k 2 -fl VfrParser.dlg -ft VfrTokens.h -o . VfrSyntax.g
+	Pccts/antlr/antlr -CC -e3 -ck 3 -k 2 -fl VfrParser.dlg -ft VfrTokens.h -o . VfrSyntax.g 2> antlr.log ; rc=$$? ; grep -v "$$ANTLR_WARN_PATTERN" antlr.log ; rm -f antlr.log ; exit $$rc
 
 VfrLexer.cpp VfrLexer.h: Pccts/dlg/dlg VfrParser.dlg
 	Pccts/dlg/dlg -C2 -i -CC -cl VfrLexer -o . VfrParser.dlg

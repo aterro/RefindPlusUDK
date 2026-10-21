@@ -7534,7 +7534,13 @@ NOOPT_MYTOOLS_IPF_DLINK_FLAGS            = /NOLOGO /NODEFAULTLIB /LTCG /DLL /OPT
 #
 *_XCODE5_*_MAKE_PATH     = make
 *_XCODE5_*_CC_PATH       = clang
-*_XCODE5_*_SLINK_PATH    = libtool
+# NOTE: 'ar' is used instead of 'libtool' ... 'libtool' emits a
+#       "duplicate member name" warning whenever a module holds both
+#       generic and architecture-specific sources that share the same
+#       base name (e.g. MdePkg/Library/BaseLib: 'LongJump.c' and
+#       'X64/LongJump.asm') ... 'ar' does not warn and yields the same
+#       archive and the same linked binary
+*_XCODE5_*_SLINK_PATH    = ar
 *_XCODE5_*_DLINK_PATH    = ld
 *_XCODE5_*_ASM_PATH      = as
 *_XCODE5_*_PP_PATH       = clang
@@ -7570,7 +7576,7 @@ RELEASE_XCODE5_*_MTOC_FLAGS = -align 0x20
   NOOPT_XCODE5_IA32_DLINK_FLAGS      = -arch i386 -u _$(IMAGE_ENTRY_POINT) -e _$(IMAGE_ENTRY_POINT) -preload -segalign 0x20  -pie -all_load -dead_strip -seg1addr 0x240 -read_only_relocs suppress -map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
 RELEASE_XCODE5_IA32_DLINK_FLAGS      = -arch i386 -u _$(IMAGE_ENTRY_POINT) -e _$(IMAGE_ENTRY_POINT) -preload -segalign 0x20  -pie -all_load -dead_strip -seg1addr 0x240 -read_only_relocs suppress -map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
 
-*_XCODE5_IA32_SLINK_FLAGS      = -static -o
+*_XCODE5_IA32_SLINK_FLAGS      = crs
   DEBUG_XCODE5_IA32_ASM_FLAGS  = -arch i386 -g
   NOOPT_XCODE5_IA32_ASM_FLAGS  = -arch i386 -g
 RELEASE_XCODE5_IA32_ASM_FLAGS  = -arch i386
@@ -7588,7 +7594,7 @@ RELEASE_XCODE5_IA32_CC_FLAGS   = -arch i386 -c    -Os       -Wall -Werror -inclu
   NOOPT_XCODE5_X64_DLINK_FLAGS      = -arch x86_64 -u _$(IMAGE_ENTRY_POINT) -e _$(IMAGE_ENTRY_POINT) -preload -segalign 0x20  -pie -all_load -dead_strip -seg1addr 0x240 -map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
 RELEASE_XCODE5_X64_DLINK_FLAGS      = -arch x86_64 -u _$(IMAGE_ENTRY_POINT) -e _$(IMAGE_ENTRY_POINT) -preload -segalign 0x20  -pie -all_load -dead_strip -seg1addr 0x240 -map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
 
-*_XCODE5_X64_SLINK_FLAGS      = -static -o
+*_XCODE5_X64_SLINK_FLAGS      = crs
   DEBUG_XCODE5_X64_ASM_FLAGS  = -arch x86_64 -g
   NOOPT_XCODE5_X64_ASM_FLAGS  = -arch x86_64 -g
 RELEASE_XCODE5_X64_ASM_FLAGS  = -arch x86_64
