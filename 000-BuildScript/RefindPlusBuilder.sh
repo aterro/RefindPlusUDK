@@ -91,7 +91,7 @@ ORIG_PATH="${PATH}"
 DONE_ONE="False"
 
 BUILD_BRANCH="${1:-Full}"
-DEBUG_TYPE="${2:-SOME}"
+DEBUG_TYPE="${2:-REL}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
     # Disable WordWrap
