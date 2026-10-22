@@ -7,6 +7,13 @@
  # MIT-0 License
 ###
 
+# Re-Exec with Bash if invoked via a non-Bash shell (e.g. 'sh RefindBuilder.sh').
+# This script relies on Bash-only features (pushd/popd, 'trap ERR', '[ x == y ]')
+# and on edksetup.sh / BaseTools/BuildEnv, which are themselves Bash-only.
+if [ -z "${BASH_VERSION:-}" ] ; then
+    exec /usr/bin/env bash "$0" "$@"
+fi
+
 COLOR_BASE=""
 COLOR_INFO=""
 COLOR_STATUS=""
