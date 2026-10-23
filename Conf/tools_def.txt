@@ -5512,14 +5512,14 @@ RELEASE_GCC5_IA32_DLINK_FLAGS    = DEF(GCC5_IA32_X64_DLINK_FLAGS) -flto -Os -Wl,
 *_GCC5_X64_OBJCOPY_FLAGS         =
 *_GCC5_X64_NASM_FLAGS            = -f elf64
 
-  DEBUG_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-attributes
-  DEBUG_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -Os -Wl,--no-warn-rwx-segments -Wl,-z,noexecstack
+  DEBUG_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+  DEBUG_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto -Os
 
-RELEASE_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-attributes -Wno-unused-but-set-variable -Wno-unused-const-variable
-RELEASE_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -Os -Wl,--no-warn-rwx-segments -Wl,-z,noexecstack
+RELEASE_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-attributes -Wno-unused-but-set-variable -Wno-unused-const-variable -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type
+RELEASE_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto -Os
 
-  NOOPT_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-attributes
-  NOOPT_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -O0 -Wl,--no-warn-rwx-segments -Wl,-z,noexecstack
+  NOOPT_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+  NOOPT_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -O0
 
 ##################
 # GCC5 ARM definitions
