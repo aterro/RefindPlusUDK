@@ -253,7 +253,7 @@ rm -fr "${OUTPUT_DIR}"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
-ln -s "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
+ln -sf "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
 
 # Build RELEASE version
 if [ "${RUN_REL}" == 'True' ] ; then
