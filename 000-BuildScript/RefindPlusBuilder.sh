@@ -7,6 +7,13 @@
  # MIT-0 License
 ###
 
+# Re-Exec with Bash if invoked via a non-Bash shell (e.g. 'sh RefindPlusBuilder.sh').
+# This script relies on Bash-only features (pushd/popd, 'trap ERR', '[ x == y ]')
+# and on edksetup.sh / BaseTools/BuildEnv, which are themselves Bash-only.
+if [ -z "${BASH_VERSION:-}" ] ; then
+    exec /usr/bin/env bash "$0" "$@"
+fi
+
 COLOR_BASE=""
 COLOR_INFO=""
 COLOR_STATUS=""
@@ -107,6 +114,9 @@ if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
 fi
 if [ "${BUILD_TYPE}" == 'REL' ] || [ "${BUILD_TYPE}" == 'NPT' ] ; then
     RUN_DBG="False"
+fi
+if [ "${BUILD_TYPE}" == 'DBG' ] || [ "${BUILD_TYPE}" == 'ALL' ] ; then
+    RUN_DBG="True"
 fi
 if [ "${BUILD_TYPE}" == 'ALL' ] || [ "${BUILD_TYPE}" == 'NPT' ] \
 || ([ "${BUILD_TYPE}" != 'REL' ] && [ "${BUILD_TYPE}" != 'DBG' ] && \

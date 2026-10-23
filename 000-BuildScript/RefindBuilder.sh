@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###
-# RefindBuilder
+RefindBuilder
  # A script to build rEFInd
  #
  # Copyright (c) 2020-2025 Dayo Akanji
@@ -152,7 +152,7 @@ Get_Sha_Str="$(find "${EDK2_DIR}/BaseTools" "${EDK2_DIR}/Conf" \
   -type f \( -name '*.c' -or -name '*.cpp' -or -name '*.h' -or -name '*.py' -or \
   -name '*.txt' -or -name '*.template' -or -name '*.makefile' -or -name 'GNUmakefile' \) \
   -print0 | sort -z | xargs -0 ${OUR_SHASUM} | ${OUR_SHASUM} | cut -d ' ' -f 1)"
-Get_Mac_Ver="$( cat /proc/sys/kernel/osrelease 2>/dev/null || uname -r )"
+Get_Mac_Ver="$( sysctl kern.osrelease | cut -d ':' -f 2 | xargs )"
 BASETOOLS_SHA_NEW="${Get_Sha_Str}:${Get_Mac_Ver}"
 BUILD_TOOLS='false'
 if [ ! -d "${EDK2_DIR}/BaseTools/Source/C/bin" ] \
@@ -253,7 +253,7 @@ rm -fr "${OUTPUT_DIR}"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
-ln -sfn "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
+ln -s "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
 
 # Build RELEASE version
 if [ "${RUN_REL}" == 'True' ] ; then

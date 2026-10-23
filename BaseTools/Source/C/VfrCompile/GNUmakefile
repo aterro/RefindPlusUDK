@@ -23,7 +23,11 @@ TOOL_INCLUDE = -I Pccts/h
 OBJECTS = AParser.o DLexerBase.o ATokenBuffer.o EfiVfrParser.o VfrLexer.o VfrSyntax.o \
           VfrFormPkg.o VfrError.o VfrUtilityLib.o VfrCompiler.o
 
-VFR_CPPFLAGS = -DPCCTS_USE_NAMESPACE_STD $(BUILD_CPPFLAGS)
+VFR_CPPFLAGS = -DPCCTS_USE_NAMESPACE_STD -Wno-register $(BUILD_CPPFLAGS)
+
+# The Antlr parser generator reports grammar warnings for the upstream
+# VfrSyntax.g ... These are harmless ... Filter them out of the build log
+export ANTLR_WARN_PATTERN = ^VfrSyntax\.g, line .*: warning:
 
 LINKER = $(BUILD_CXX)
 
@@ -46,7 +50,7 @@ VfrCompiler.o: ../Include/Common/BuildVersion.h
 include $(MAKEROOT)/Makefiles/footer.makefile
 
 VfrSyntax.cpp EfiVfrParser.cpp EfiVfrParser.h VfrParser.dlg VfrTokens.h: Pccts/antlr/antlr VfrSyntax.g
-	Pccts/antlr/antlr -CC -e3 -ck 3 -k 2 -fl VfrParser.dlg -ft VfrTokens.h -o . VfrSyntax.g
+	Pccts/antlr/antlr -CC -e3 -ck 3 -k 2 -fl VfrParser.dlg -ft VfrTokens.h -o . VfrSyntax.g 2> antlr.log ; rc=$$? ; grep -v "$$ANTLR_WARN_PATTERN" antlr.log ; rm -f antlr.log ; exit $$rc
 
 VfrLexer.cpp VfrLexer.h: Pccts/dlg/dlg VfrParser.dlg
 	Pccts/dlg/dlg -C2 -i -CC -cl VfrLexer -o . VfrParser.dlg
