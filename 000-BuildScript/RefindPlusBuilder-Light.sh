@@ -7,6 +7,13 @@
  # MIT-0 License
 ###
 
+# Re-Exec with Bash if invoked via a non-Bash shell (e.g. 'sh RefindPlusBuilder-Light.sh').
+# This script relies on Bash-only features (pushd/popd, 'trap ERR', '[ x == y ]')
+# and on edksetup.sh / BaseTools/BuildEnv, which are themselves Bash-only.
+if [ -z "${BASH_VERSION:-}" ] ; then
+    exec /usr/bin/env bash "$0" "$@"
+fi
+
 COLOR_BASE=""
 COLOR_INFO=""
 COLOR_STATUS=""
@@ -91,7 +98,7 @@ ORIG_PATH="${PATH}"
 DONE_ONE="False"
 
 BUILD_BRANCH="${1:-GOPFix}"
-DEBUG_TYPE="${2:-SOME}"
+DEBUG_TYPE="${2:-REL}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
     # Disable WordWrap
@@ -119,7 +126,7 @@ fi
 clear
 msg_info "## RefindPlusBuilder - Setting Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------##'
-BASE_DIR="${HOME}/Documents/RefindPlus"
+BASE_DIR="$(dirname "$(dirname "$(dirname "$(readlink -f "$0")")")")"
 WORK_DIR="${BASE_DIR}/Working"
 EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
@@ -265,6 +272,7 @@ msg_info '##--------------------------------------##'
 msg_base 'Misc Item Fixup...'
 rm -fr "${EDK2_DIR}/Build"
 rm -fr "${OUTPUT_DIR}"
+rm -f "${EDK2_DIR}/Conf/BuildEnv.sh"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''

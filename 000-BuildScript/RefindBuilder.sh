@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 ###
-RefindBuilder
- # A script to build rEFInd
+# RefindBuilder
+# A script to build rEFInd
  #
  # Copyright (c) 2020-2025 Dayo Akanji
  # MIT-0 License
 ###
+
+# Re-Exec with Bash if invoked via a non-Bash shell (e.g. 'sh RefindBuilder.sh').
+# This script relies on Bash-only features (pushd/popd, 'trap ERR', '[ x == y ]')
+# and on edksetup.sh / BaseTools/BuildEnv, which are themselves Bash-only.
+if [ -z "${BASH_VERSION:-}" ] ; then
+    exec /usr/bin/env bash "$0" "$@"
+fi
 
 COLOR_BASE=""
 COLOR_INFO=""
@@ -120,7 +127,7 @@ RUN_NPT="False"
 clear
 msg_info "## RefindBuilder - Setting Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------##'
-BASE_DIR="${HOME}/Documents/RefindPlus"
+BASE_DIR="$(dirname "$(dirname "$(dirname "$(readlink -f "$0")")")")"
 WORK_DIR="${BASE_DIR}/Working"
 EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
@@ -250,10 +257,18 @@ msg_info '##--------------------------------------##'
 msg_base 'Misc Item Fixup...'
 rm -fr "${EDK2_DIR}/Build"
 rm -fr "${OUTPUT_DIR}"
+rm -f "${EDK2_DIR}/Conf/BuildEnv.sh"
 mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
-ln -s "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
+
+msg_base 'Checkout edk2-gcc branch...'
+pushd "${BASE_DIR}/rEFInd-for-All" > /dev/null || runErr "ERROR: Could not enter rEFInd-for-All"
+git checkout edk2-gcc
+popd > /dev/null || true
+msg_status '...OK'; echo ''
+
+ln -sf "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
 
 # Build RELEASE version
 if [ "${RUN_REL}" == 'True' ] ; then

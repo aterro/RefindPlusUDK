@@ -6,6 +6,7 @@ cov-int/
 infer-out/
 compile_commands.json
 000-BOOTx64-Files/
+RefindPkg
 RefindPlusPkg
 000-Releases/
 BaseToolsSHA.txt
