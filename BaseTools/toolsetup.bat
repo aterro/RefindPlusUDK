@@ -300,11 +300,18 @@ goto end
   )
 
   if not defined PYTHON_HOME (
+    for /f "delims=" %%I in ('where python.exe 2^>nul') do (
+      echo "%%~dpI" | find /I "WindowsApps" > nul
+      if errorlevel 1 if not defined PYTHON_HOME set "PYTHON_HOME=%%~dpI"
+    )
+  )
+
+  if not defined PYTHON_HOME (
     if defined PYTHONHOME (
       set PYTHON_HOME=%PYTHONHOME%
     ) else (
       echo.
-      echo !!! ERROR !!! Binary python tools are missing. PYTHON_HOME environment variable is not set. 
+      echo !!! ERROR !!! Binary python tools are missing. PYTHON_HOME environment variable is not set.
       echo PYTHON_HOME is required to build or execute the python tools.
       echo.
       goto end
@@ -332,6 +339,9 @@ goto end
   echo.
 
 :VisualStudioAvailable
+  if not exist "%BASE_TOOLS_PATH%\Lib\Win32\Common.lib" goto CleanAndBuild
+  if not exist "%BASE_TOOLS_PATH%\Bin\Win32" mkdir "%BASE_TOOLS_PATH%\Bin\Win32"
+  if not exist "%BASE_TOOLS_PATH%\Lib\Win32" mkdir "%BASE_TOOLS_PATH%\Lib\Win32"
   if not defined FORCE_REBUILD (
     if not defined REBUILD (
       goto end
@@ -349,6 +359,8 @@ goto end
 :CleanAndBuild
   pushd .
   cd %BASE_TOOLS_PATH%
+  if not exist "%BASE_TOOLS_PATH%\Lib\Win32" mkdir "%BASE_TOOLS_PATH%\Lib\Win32"
+  if not exist "%BASE_TOOLS_PATH%\Bin\Win32" mkdir "%BASE_TOOLS_PATH%\Bin\Win32"
   call nmake cleanall
   del /f /q %BASE_TOOLS_PATH%\Bin\Win32\*.*
   popd
@@ -357,8 +369,8 @@ goto end
 
 :IncrementalBuild
   pushd .
-  cd %BASE_TOOLS_PATH%
-  call nmake c
+  cd %BASE_TOOLS_PATH%\Source\C
+  call nmake -nologo -a -f Makefile
   popd
 
   if defined PYTHON_FREEZER_PATH (

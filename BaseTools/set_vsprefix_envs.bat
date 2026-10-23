@@ -93,12 +93,12 @@ if defined VS140COMNTOOLS (
 @REM set VS2017
 if not defined VS150COMNTOOLS (
   if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
-    for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"`) do (
-      if /i "%%i"=="installationPath" call "%%j\VC\Auxiliary\Build\vcvars32.bat"
+    for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+      if exist "%%i\VC\Auxiliary\Build\vcvars32.bat" call "%%i\VC\Auxiliary\Build\vcvars32.bat"
     )
   ) else if exist "%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe" (
-    for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe"`) do (
-      if /i "%%i"=="installationPath" call "%%j\VC\Auxiliary\Build\vcvars32.bat"
+    for /f "usebackq delims=" %%i in (`"%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+      if exist "%%i\VC\Auxiliary\Build\vcvars32.bat" call "%%i\VC\Auxiliary\Build\vcvars32.bat"
     )
   ) else (
     goto SetWinDDK

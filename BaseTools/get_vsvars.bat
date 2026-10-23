@@ -17,8 +17,8 @@
 goto  :main
 
 :set_vsvars
-for /f "usebackq tokens=1* delims=: " %%i in (`%*`) do (
-  if /i "%%i"=="installationPath" call "%%j\VC\Auxiliary\Build\vcvars32.bat"
+for /f "usebackq delims=" %%i in (`%* -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+  if exist "%%i\VC\Auxiliary\Build\vcvars32.bat" call "%%i\VC\Auxiliary\Build\vcvars32.bat"
 )
 goto :EOF
 
