@@ -177,6 +177,40 @@ msg_base 'Export Temp "PATH"...'
 export PATH="/usr/bin:/opt/local/bin:/opt/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:${PATH}"
 msg_status '...OK'; echo ''
 
+if [ -z "${GCC5_BIN:-}" ] ; then
+    GCC5_COMPILER="$(command -v x86_64-linux-gnu-gcc || true)"
+    if [ -z "${GCC5_COMPILER}" ] ; then
+        GCC5_COMPILER="$(command -v gcc || true)"
+    fi
+    if [ -z "${GCC5_COMPILER}" ] \
+    || [[ "$("${GCC5_COMPILER}" -dumpmachine 2>/dev/null)" != x86_64-* ]] ; then
+        runErr "ERROR: An X64 GCC compiler is required (for example, x86_64-linux-gnu-gcc)"
+    fi
+    GCC5_BIN="${GCC5_COMPILER%gcc}"
+fi
+export GCC5_BIN
+GCC5_COMPILER="$(command -v "${GCC5_BIN}gcc" || true)"
+if [ -z "${GCC5_COMPILER}" ] \
+|| [[ "$("${GCC5_COMPILER}" -dumpmachine 2>/dev/null)" != x86_64-* ]] ; then
+    runErr "ERROR: '${GCC5_BIN}gcc' is not an X64 GCC compiler"
+fi
+for TOOL in gcc gcc-ar objcopy; do
+    if ! command -v "${GCC5_BIN}${TOOL}" > /dev/null 2>&1 ; then
+        runErr "ERROR: Could not find '${GCC5_BIN}${TOOL}'"
+    fi
+done
+
+if ! command -v python2 > /dev/null 2>&1 ; then
+    if [ -x '/data/data/com.termux/files/usr/bin/python2' ] ; then
+        export PATH="${PATH}:/data/data/com.termux/files/usr/bin"
+    else
+        runErr 'ERROR: Python 2 is required to build RefindPlus'
+    fi
+fi
+if ! python2 -c 'import sys; sys.exit(0 if sys.version_info[0] == 2 else 1)' ; then
+    runErr 'ERROR: python2 does not run Python 2'
+fi
+
 ErrMsg="ERROR: Could not find '${WORK_DIR}'"
 pushd "${WORK_DIR}" > /dev/null || runErr "${ErrMsg}"
 msg_base "Checkout '${BUILD_BRANCH}' branch..."
