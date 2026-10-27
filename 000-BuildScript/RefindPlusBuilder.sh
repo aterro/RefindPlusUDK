@@ -20,10 +20,11 @@ COLOR_STATUS=""
 COLOR_ERROR=""
 COLOR_NORMAL=""
 GCC5_WRAPPER_DIR=""
+TPUT="$(command -v tput || true)"
 
-if test -t 1; then
-    NCOLORS=$(tput colors)
-    if test -n "${NCOLORS}" && test "${NCOLORS}" -ge 8; then
+if test -t 1 && [ -n "${TPUT}" ]; then
+    NCOLORS=$("${TPUT}" colors 2>/dev/null || true)
+    if [[ "${NCOLORS}" =~ ^[0-9]+$ ]] && (( NCOLORS >= 8 )); then
         COLOR_BASE="\033[0;36m"
         COLOR_INFO="\033[0;33m"
         COLOR_STATUS="\033[0;32m"
@@ -58,7 +59,9 @@ RevertWordWrap() {
     fi
     if [ "${WORD_WRAP}" == '0' ] ; then
         # Enable WordWrap
-        tput smam
+        if [ -n "${TPUT}" ]; then
+            "${TPUT}" smam >/dev/null 2>&1 || true
+        fi
     fi
 }
 
@@ -115,7 +118,9 @@ DEBUG_TYPE="${2:-REL}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
     # Disable WordWrap
-    tput rmam
+    if [ -n "${TPUT}" ]; then
+        "${TPUT}" rmam >/dev/null 2>&1 || true
+    fi
 fi
 
 RUN_REL="True"
@@ -288,7 +293,7 @@ fi
 
 BUILD_THREAD_ARGS=()
 if [ "${PREFIX:-}" == '/data/data/com.termux/files/usr' ] ; then
-    BUILD_THREAD_ARGS=(-n 2)
+    BUILD_THREAD_ARGS=(-n 1)
 fi
 
 ErrMsg="ERROR: Could not find '${WORK_DIR}'"
