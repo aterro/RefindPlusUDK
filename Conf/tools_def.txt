@@ -5445,7 +5445,7 @@ RELEASE_GCC49_AARCH64_DLINK_FLAGS  = DEF(GCC49_AARCH64_DLINK_FLAGS)
 ####################################################################################
 *_GCC5_*_*_FAMILY                = GCC
 
-*_GCC5_*_MAKE_PATH               = DEF(GCC5_IA32_PREFIX)make
+*_GCC5_*_MAKE_PATH               = make
 *_GCC5_*_*_DLL                   = ENV(GCC5_DLL)
 *_GCC5_*_ASL_PATH                = DEF(UNIX_IASL_BIN)
 

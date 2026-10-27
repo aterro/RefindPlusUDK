@@ -142,7 +142,7 @@ BINARY_DIR_REL="${XCODE_DIR_REL}/X64"
 BINARY_DIR_DBG="${XCODE_DIR_DBG}/X64"
 BINARY_DIR_NPT="${XCODE_DIR_NPT}/X64"
 OUTPUT_DIR="${EDK2_DIR}/000-BOOTx64-Files"
-OUR_SHASUM='/usr/bin/shasum'
+OUR_SHASUM='/data/data/com.termux/files/usr/bin/shasum'
 MAKEFILE_TEMP="${EDK2_DIR}/BaseTools/Source/C/Makefiles/header.makefile"
 MAKEFILE_ORIG="${EDK2_DIR}/BaseTools/Source/C/Makefiles/header-orig.makefile"
 BASETYPE_TEMP="${EDK2_DIR}/BaseTools/Source/C/Include/Common/BaseTypes.h"
@@ -217,7 +217,7 @@ if [ "${BUILD_TOOLS}" == 'true' ] ; then
 
         # Apply patch if not already patched
         if grep -q '#include <ProcessorBind.h>' "${BASETYPE_TEMP}"; then
-            sed -i '' 's|#include <ProcessorBind.h>|#include "../AArch64/ProcessorBind.h"|' "${BASETYPE_TEMP}"
+            sed -i 's|#include <ProcessorBind.h>|#include "../AArch64/ProcessorBind.h"|' "${BASETYPE_TEMP}"
         fi
         msg_status '...OK'; echo ''
 
