@@ -94,7 +94,15 @@ runErr() { # $1: message
     echo ''
     exit 1
 }
-trap runErr ERR
+trapERR() {
+    local errStatus
+    local errCommand
+
+    errStatus=$?
+    errCommand="${BASH_COMMAND}"
+    runErr "Runtime Error (exit ${errStatus}) in command: ${errCommand}"
+}
+trap trapERR ERR
 trap trapINT SIGINT
 
 
@@ -278,6 +286,11 @@ if ! python2 -c 'import sys; sys.exit(0 if sys.version_info[0] == 2 else 1)' ; t
     runErr 'ERROR: python2 does not run Python 2'
 fi
 
+BUILD_THREAD_ARGS=()
+if [ "${PREFIX:-}" == '/data/data/com.termux/files/usr' ] ; then
+    BUILD_THREAD_ARGS=(-n 2)
+fi
+
 ErrMsg="ERROR: Could not find '${WORK_DIR}'"
 pushd "${WORK_DIR}" > /dev/null || runErr "${ErrMsg}"
 msg_base "Checkout '${BUILD_BRANCH}' branch..."
@@ -390,7 +403,7 @@ if [ "${RUN_REL}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build "${BUILD_THREAD_ARGS[@]}" -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp "${BINARY_DIR_REL}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-REL.efi"
     fi
@@ -423,7 +436,7 @@ if [ "${RUN_DBG}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build "${BUILD_THREAD_ARGS[@]}" -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_DBG}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-DBG.efi"
     fi
@@ -456,7 +469,7 @@ if [ "${RUN_NPT}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build "${BUILD_THREAD_ARGS[@]}" -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_NPT}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-NPT.efi"
     fi
