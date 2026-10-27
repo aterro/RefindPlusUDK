@@ -1,0 +1,18 @@
+Termux build prerequisites
+=========================
+
+Install the required Termux packages:
+
+    pkg install clang lld llvm make nasm git python2 perl libuuid
+
+The builder uses Clang to cross-compile X64 EFI code from an ARM64 Termux
+device. It also needs LLD, LLVM's ar and objcopy tools, NASM, Python 2, and
+the UUID development headers for EDK2 BaseTools. The native ARM64 GCC is not
+suitable for this X64 build.
+
+The RefindPlus source checkout must be at ../Working beside the edk2
+directory. From the edk2 directory, run:
+
+    bash 000-BuildScript/RefindPlusBuilder.sh Full REL 1
+
+The final Release EFI is written to 000-BOOTx64-Files/BOOTx64-REL.efi.
