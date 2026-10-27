@@ -98,11 +98,11 @@ trapERR() {
     local errStatus
     local errCommand
 
-    errStatus=$?
-    errCommand="${BASH_COMMAND}"
+    errStatus="${1:-1}"
+    errCommand="${2:-unknown command}"
     runErr "Runtime Error (exit ${errStatus}) in command: ${errCommand}"
 }
-trap trapERR ERR
+trap 'trapERR "$?" "$BASH_COMMAND"' ERR
 trap trapINT SIGINT
 
 
