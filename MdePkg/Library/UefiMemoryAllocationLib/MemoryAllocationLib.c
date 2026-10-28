@@ -145,11 +145,8 @@ FreePages (
   IN UINTN  Pages
   )
 {
-  EFI_STATUS  Status;
-
   ASSERT (Pages != 0);
-  Status = gBS->FreePages ((EFI_PHYSICAL_ADDRESS) (UINTN) Buffer, Pages);
-  ASSERT_EFI_ERROR (Status);
+  gBS->FreePages ((EFI_PHYSICAL_ADDRESS) (UINTN) Buffer, Pages);
 }
 
 /**
@@ -346,11 +343,8 @@ FreeAlignedPages (
   IN UINTN  Pages
   )
 {
-  EFI_STATUS  Status;
-
   ASSERT (Pages != 0);
-  Status = gBS->FreePages ((EFI_PHYSICAL_ADDRESS) (UINTN) Buffer, Pages);
-  ASSERT_EFI_ERROR (Status);
+  gBS->FreePages ((EFI_PHYSICAL_ADDRESS) (UINTN) Buffer, Pages);
 }
 
 /**
@@ -813,9 +807,6 @@ FreePool (
   IN VOID   *Buffer
   )
 {
-  EFI_STATUS    Status;
-
-  Status = gBS->FreePool (Buffer);
-  ASSERT_EFI_ERROR (Status);
+  gBS->FreePool (Buffer);
 }
 

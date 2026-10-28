@@ -133,9 +133,9 @@ AsmReadMsr64 (
   
   __asm__ __volatile__ (
     "rdmsr"
-    : "=a" (LowData),   // %0
-      "=d" (HighData)   // %1
-    : "c"  (Index)      // %2
+    : "=r" (LowData),   // %0
+      "=r" (HighData)   // %1
+    : "r"  (Index)      // %2
     );
     
   return (((UINT64)HighData) << 32) | LowData;
@@ -174,9 +174,9 @@ AsmWriteMsr64 (
   __asm__ __volatile__ (
     "wrmsr"
     :
-    : "c" (Index),
-      "a" (LowData),
-      "d" (HighData)
+    : "r" (Index),
+      "r" (LowData),
+      "r" (HighData)
     );
     
   return Value;
@@ -866,8 +866,8 @@ AsmReadCs (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "mov   %%cs, %0"
-    :"=a" (Data)
+    "mov   %%cs, %w0"
+    :"=r" (Data)
     );
     
   return Data;
@@ -892,8 +892,8 @@ AsmReadDs (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "mov  %%ds, %0"
-    :"=a" (Data)
+    "mov  %%ds, %w0"
+    :"=r" (Data)
     );
     
   return Data;
@@ -918,8 +918,8 @@ AsmReadEs (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "mov  %%es, %0"
-    :"=a" (Data)
+    "mov  %%es, %w0"
+    :"=r" (Data)
     );
     
   return Data;
@@ -944,8 +944,8 @@ AsmReadFs (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "mov  %%fs, %0"
-    :"=a" (Data)
+    "mov  %%fs, %w0"
+    :"=r" (Data)
     );
     
   return Data;
@@ -970,8 +970,8 @@ AsmReadGs (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "mov  %%gs, %0"
-    :"=a" (Data)
+    "mov  %%gs, %w0"
+    :"=r" (Data)
     );
     
   return Data;
@@ -996,8 +996,8 @@ AsmReadSs (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "mov  %%ds, %0"
-    :"=a" (Data)
+    "mov  %%ds, %w0"
+    :"=r" (Data)
     );
     
   return Data;
@@ -1022,7 +1022,7 @@ AsmReadTr (
   UINT16  Data;
   
   __asm__ __volatile__ (
-    "str  %0"
+    "str  %w0"
     : "=r" (Data)
     );
     
@@ -1630,8 +1630,8 @@ AsmReadTsc (
   
   __asm__ __volatile__ (
     "rdtsc"
-    : "=a" (LowData),
-      "=d" (HiData)
+    : "=r" (LowData),
+      "=r" (HiData)
     );
   
   return (((UINT64)HiData) << 32) | LowData;  
@@ -1660,9 +1660,9 @@ AsmReadPmc (
   
   __asm__ __volatile__ (
     "rdpmc"
-    : "=a" (LowData),
-      "=d" (HiData)
-    : "c"  (Index)
+    : "=r" (LowData),
+      "=r" (HiData)
+    : "r"  (Index)
     );
   
   return (((UINT64)HiData) << 32) | LowData;  
@@ -1696,9 +1696,9 @@ AsmMonitor (
   __asm__ __volatile__ (
     "monitor"
     :
-    : "a" (Eax),
-      "c" (Ecx),
-      "d" (Edx)
+    : "r" (Eax),
+      "r" (Ecx),
+      "r" (Edx)
     );
     
   return Eax;
@@ -1729,8 +1729,8 @@ AsmMwait (
   __asm__ __volatile__ (
     "mwait"
     : 
-    : "a"  (Eax),
-      "c"  (Ecx)
+    : "r"  (Eax),
+      "r"  (Ecx)
     );
     
   return Eax;    
