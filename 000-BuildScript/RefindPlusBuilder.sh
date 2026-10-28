@@ -19,12 +19,10 @@ COLOR_INFO=""
 COLOR_STATUS=""
 COLOR_ERROR=""
 COLOR_NORMAL=""
-GCC5_WRAPPER_DIR=""
-TPUT="$(command -v tput || true)"
 
-if test -t 1 && [ -n "${TPUT}" ]; then
-    NCOLORS=$("${TPUT}" colors 2>/dev/null || true)
-    if [[ "${NCOLORS}" =~ ^[0-9]+$ ]] && (( NCOLORS >= 8 )); then
+if test -t 1; then
+    NCOLORS=$(tput colors)
+    if test -n "${NCOLORS}" && test "${NCOLORS}" -ge 8; then
         COLOR_BASE="\033[0;36m"
         COLOR_INFO="\033[0;33m"
         COLOR_STATUS="\033[0;32m"
@@ -50,18 +48,12 @@ msg_error() {
 ## REVERT WORD_WRAP FIX ##
 RevertWordWrap() {
     export PATH="${ORIG_PATH}";
-    if [ -n "${GCC5_WRAPPER_DIR}" ] && [ -d "${GCC5_WRAPPER_DIR}" ] ; then
-        rm -rf -- "${GCC5_WRAPPER_DIR}"
-        GCC5_WRAPPER_DIR=""
-    fi
     if [ -f "${MAKEFILE_ORIG}" ] ; then
         mv -f "${MAKEFILE_ORIG}" "${MAKEFILE_TEMP}" || true
     fi
     if [ "${WORD_WRAP}" == '0' ] ; then
         # Enable WordWrap
-        if [ -n "${TPUT}" ]; then
-            "${TPUT}" smam >/dev/null 2>&1 || true
-        fi
+        tput smam
     fi
 }
 
@@ -97,15 +89,7 @@ runErr() { # $1: message
     echo ''
     exit 1
 }
-trapERR() {
-    local errStatus
-    local errCommand
-
-    errStatus="${1:-1}"
-    errCommand="${2:-unknown command}"
-    runErr "Runtime Error (exit ${errStatus}) in command: ${errCommand}"
-}
-trap 'trapERR "$?" "$BASH_COMMAND"' ERR
+trap runErr ERR
 trap trapINT SIGINT
 
 
@@ -118,9 +102,7 @@ DEBUG_TYPE="${2:-REL}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
     # Disable WordWrap
-    if [ -n "${TPUT}" ]; then
-        "${TPUT}" rmam >/dev/null 2>&1 || true
-    fi
+    tput rmam
 fi
 
 RUN_REL="True"
@@ -160,7 +142,7 @@ BINARY_DIR_REL="${XCODE_DIR_REL}/X64"
 BINARY_DIR_DBG="${XCODE_DIR_DBG}/X64"
 BINARY_DIR_NPT="${XCODE_DIR_NPT}/X64"
 OUTPUT_DIR="${EDK2_DIR}/000-BOOTx64-Files"
-OUR_SHASUM='/data/data/com.termux/files/usr/bin/shasum'
+OUR_SHASUM='/usr/bin/shasum'
 MAKEFILE_TEMP="${EDK2_DIR}/BaseTools/Source/C/Makefiles/header.makefile"
 MAKEFILE_ORIG="${EDK2_DIR}/BaseTools/Source/C/Makefiles/header-orig.makefile"
 BASETYPE_TEMP="${EDK2_DIR}/BaseTools/Source/C/Include/Common/BaseTypes.h"
@@ -179,10 +161,7 @@ Get_Sha_Str="$(find "${EDK2_DIR}/BaseTools" "${EDK2_DIR}/Conf" \
   -type f \( -name '*.c' -or -name '*.cpp' -or -name '*.h' -or -name '*.py' -or \
   -name '*.txt' -or -name '*.template' -or -name '*.makefile' -or -name 'GNUmakefile' \) \
   -print0 | sort -z | xargs -0 ${OUR_SHASUM} | ${OUR_SHASUM} | cut -d ' ' -f 1)"
-Get_Mac_Ver=""
-if [ "$(uname -s)" == 'Darwin' ] ; then
-    Get_Mac_Ver="$(sysctl kern.osrelease | cut -d ':' -f 2 | xargs)"
-fi
+Get_Mac_Ver="$( sysctl kern.osrelease | cut -d ':' -f 2 | xargs )"
 BASETOOLS_SHA_NEW="${Get_Sha_Str}:${Get_Mac_Ver}"
 BUILD_TOOLS='false'
 if [ ! -d "${EDK2_DIR}/BaseTools/Source/C/bin" ] \
@@ -197,104 +176,6 @@ popd > /dev/null || true
 msg_base 'Export Temp "PATH"...'
 export PATH="/usr/bin:/opt/local/bin:/opt/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:${PATH}"
 msg_status '...OK'; echo ''
-
-if [ -z "${GCC5_BIN:-}" ] ; then
-    GCC5_COMPILER=""
-    if [ "${PREFIX:-}" != '/data/data/com.termux/files/usr' ] ; then
-        GCC5_COMPILER="$(command -v x86_64-linux-gnu-gcc || true)"
-        if [ -z "${GCC5_COMPILER}" ] ; then
-            GCC5_COMPILER="$(command -v gcc || true)"
-        fi
-    fi
-    if [ -n "${GCC5_COMPILER}" ] \
-    && [[ "$("${GCC5_COMPILER}" -dumpmachine 2>/dev/null)" == x86_64-* ]] ; then
-        GCC5_BIN="${GCC5_COMPILER%gcc}"
-    else
-        GCC5_CLANG="$(command -v clang || true)"
-        GCC5_LLVM_AR="$(command -v llvm-ar || true)"
-        GCC5_LLVM_OBJCOPY="$(command -v llvm-objcopy || true)"
-        if [ -z "${GCC5_CLANG}" ] || [ -z "${GCC5_LLVM_AR}" ] \
-        || [ -z "${GCC5_LLVM_OBJCOPY}" ] ; then
-            runErr "ERROR: Need an X64 GCC cross-compiler or Termux clang, llvm-ar, and llvm-objcopy"
-        fi
-
-        GCC5_WRAPPER_DIR="$(mktemp -d "${TMPDIR:-/tmp}/refindplus-x64.XXXXXX")" \
-            || runErr "ERROR: Could not create temporary X64 compiler wrappers"
-        export GCC5_CLANG GCC5_LLVM_AR GCC5_LLVM_OBJCOPY
-        GCC5_LDS="${GCC5_WRAPPER_DIR}/GccBase.lds"
-        sed -e '/\*(\.got \.got\.\*)/d' \
-            -e '/\*(\.data \.data\.\* \.gnu.linkonce\.d\.\*)/i\    *(.got .got.*)' \
-            "${EDK2_DIR}/BaseTools/Scripts/GccBase.lds" > "${GCC5_LDS}" \
-            || runErr "ERROR: Could not prepare the Termux Clang linker script"
-        export GCC5_LDS
-        cat > "${GCC5_WRAPPER_DIR}/tool" <<'EOF'
-#!/usr/bin/env bash
-case "$(basename "$0")" in
-    gcc)
-        if [ "$#" -eq 1 ] && [ "$1" == '-dumpmachine' ] ; then
-            echo x86_64-unknown-linux-gnu
-            exit 0
-        fi
-        args=()
-        for arg in "$@"; do
-            if [ "$arg" == '-Wl,-n,-q,--gc-sections' ] ; then
-                arg='-Wl,-q,--gc-sections'
-            elif [[ "$arg" == '-Wl,--script='*'/GccBase.lds' ]] ; then
-                arg="-Wl,--script=${GCC5_LDS}"
-            fi
-            if [ "$arg" != '-Wl,--no-warn-rwx-segments' ] \
-            && [ "$arg" != '-maccumulate-outgoing-args' ] ; then
-                args+=("$arg")
-            fi
-        done
-        exec "${GCC5_CLANG}" --target=x86_64-unknown-linux-gnu \
-            -fuse-ld=lld -Qunused-arguments \
-            -Wno-error=single-bit-bitfield-constant-conversion \
-            -Wno-error=varargs -Wno-error=constant-conversion "${args[@]}"
-        ;;
-    gcc-ar)
-        exec "${GCC5_LLVM_AR}" "$@"
-        ;;
-    objcopy)
-        exec "${GCC5_LLVM_OBJCOPY}" "$@"
-        ;;
-esac
-exit 1
-EOF
-        chmod +x "${GCC5_WRAPPER_DIR}/tool"
-        for TOOL in gcc gcc-ar objcopy; do
-            ln -s tool "${GCC5_WRAPPER_DIR}/${TOOL}"
-        done
-        GCC5_BIN="${GCC5_WRAPPER_DIR}/"
-    fi
-fi
-export GCC5_BIN
-GCC5_COMPILER="$(command -v "${GCC5_BIN}gcc" || true)"
-if [ -z "${GCC5_COMPILER}" ] \
-|| [[ "$("${GCC5_COMPILER}" -dumpmachine 2>/dev/null)" != x86_64-* ]] ; then
-    runErr "ERROR: '${GCC5_BIN}gcc' is not an X64 GCC compiler"
-fi
-for TOOL in gcc gcc-ar objcopy; do
-    if ! command -v "${GCC5_BIN}${TOOL}" > /dev/null 2>&1 ; then
-        runErr "ERROR: Could not find '${GCC5_BIN}${TOOL}'"
-    fi
-done
-
-if ! command -v python2 > /dev/null 2>&1 ; then
-    if [ -x '/data/data/com.termux/files/usr/bin/python2' ] ; then
-        export PATH="${PATH}:/data/data/com.termux/files/usr/bin"
-    else
-        runErr 'ERROR: Python 2 is required to build RefindPlus'
-    fi
-fi
-if ! python2 -c 'import sys; sys.exit(0 if sys.version_info[0] == 2 else 1)' ; then
-    runErr 'ERROR: python2 does not run Python 2'
-fi
-
-BUILD_THREAD_ARGS=()
-if [ "${PREFIX:-}" == '/data/data/com.termux/files/usr' ] ; then
-    BUILD_THREAD_ARGS=(-n 1)
-fi
 
 ErrMsg="ERROR: Could not find '${WORK_DIR}'"
 pushd "${WORK_DIR}" > /dev/null || runErr "${ErrMsg}"
@@ -336,7 +217,7 @@ if [ "${BUILD_TOOLS}" == 'true' ] ; then
 
         # Apply patch if not already patched
         if grep -q '#include <ProcessorBind.h>' "${BASETYPE_TEMP}"; then
-            sed -i 's|#include <ProcessorBind.h>|#include "../AArch64/ProcessorBind.h"|' "${BASETYPE_TEMP}"
+            sed -i '' 's|#include <ProcessorBind.h>|#include "../AArch64/ProcessorBind.h"|' "${BASETYPE_TEMP}"
         fi
         msg_status '...OK'; echo ''
 
@@ -408,7 +289,7 @@ if [ "${RUN_REL}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build "${BUILD_THREAD_ARGS[@]}" -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp "${BINARY_DIR_REL}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-REL.efi"
     fi
@@ -441,7 +322,7 @@ if [ "${RUN_DBG}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build "${BUILD_THREAD_ARGS[@]}" -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_DBG}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-DBG.efi"
     fi
@@ -474,7 +355,7 @@ if [ "${RUN_NPT}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build "${BUILD_THREAD_ARGS[@]}" -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_NPT}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-NPT.efi"
     fi

@@ -4540,7 +4540,7 @@ DEFINE GCC_AARCH64_RC_FLAGS        = -I binary -O elf64-littleaarch64 -B aarch64
 
 DEFINE GCC44_ALL_CC_FLAGS            = -g -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -ffunction-sections -fdata-sections -include AutoGen.h -fno-common -DSTRING_ARRAY_NAME=$(BASE_NAME)Strings
 DEFINE GCC44_IA32_CC_FLAGS           = DEF(GCC44_ALL_CC_FLAGS) -m32 -march=i586 -malign-double -fno-stack-protector -D EFI32 -fno-asynchronous-unwind-tables
-DEFINE GCC44_X64_CC_FLAGS            = DEF(GCC44_ALL_CC_FLAGS) -m64 -fno-stack-protector "-DEFIAPI=__attribute__((ms_abi))" -maccumulate-outgoing-args -mno-red-zone -Wno-address -mcmodel=small -fpie -fno-asynchronous-unwind-tables
+DEFINE GCC44_X64_CC_FLAGS            = DEF(GCC44_ALL_CC_FLAGS) -m64 -fno-stack-protector "-DEFIAPI=__attribute__((ms_abi))" -mno-red-zone -Wno-address -mcmodel=small -fpie -fno-asynchronous-unwind-tables
 DEFINE GCC44_IA32_X64_DLINK_COMMON   = -nostdlib -Wl,-n,-q,--gc-sections -z common-page-size=0x20
 DEFINE GCC44_IA32_X64_ASLDLINK_FLAGS = DEF(GCC44_IA32_X64_DLINK_COMMON) -Wl,--entry,ReferenceAcpiTable -u ReferenceAcpiTable
 DEFINE GCC44_IA32_X64_DLINK_FLAGS    = DEF(GCC44_IA32_X64_DLINK_COMMON) -Wl,--entry,$(IMAGE_ENTRY_POINT) -u $(IMAGE_ENTRY_POINT) -Wl,-Map,$(DEST_DIR_DEBUG)/$(BASE_NAME).map,--whole-archive
@@ -5462,7 +5462,7 @@ RELEASE_GCC49_AARCH64_DLINK_FLAGS  = DEF(GCC49_AARCH64_DLINK_FLAGS)
 ##################
 *_GCC5_IA32_OBJCOPY_PATH         = DEF(GCC5_IA32_PREFIX)objcopy
 *_GCC5_IA32_CC_PATH              = DEF(GCC5_IA32_PREFIX)gcc
-*_GCC5_IA32_SLINK_PATH           = DEF(GCC5_IA32_PREFIX)gcc-ar
+*_GCC5_IA32_SLINK_PATH           = ar
 *_GCC5_IA32_DLINK_PATH           = DEF(GCC5_IA32_PREFIX)gcc
 *_GCC5_IA32_ASLDLINK_PATH        = DEF(GCC5_IA32_PREFIX)gcc
 *_GCC5_IA32_ASM_PATH             = DEF(GCC5_IA32_PREFIX)gcc
@@ -5494,7 +5494,7 @@ RELEASE_GCC5_IA32_DLINK_FLAGS    = DEF(GCC5_IA32_X64_DLINK_FLAGS) -flto -Os -Wl,
 ##################
 *_GCC5_X64_OBJCOPY_PATH          = DEF(GCC5_X64_PREFIX)objcopy
 *_GCC5_X64_CC_PATH               = DEF(GCC5_X64_PREFIX)gcc
-*_GCC5_X64_SLINK_PATH            = DEF(GCC5_X64_PREFIX)gcc-ar
+*_GCC5_X64_SLINK_PATH            = ar
 *_GCC5_X64_DLINK_PATH            = DEF(GCC5_X64_PREFIX)gcc
 *_GCC5_X64_ASLDLINK_PATH         = DEF(GCC5_X64_PREFIX)gcc
 *_GCC5_X64_ASM_PATH              = DEF(GCC5_X64_PREFIX)gcc
@@ -5525,7 +5525,7 @@ RELEASE_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -Os -Wl,
 # GCC5 ARM definitions
 ##################
 *_GCC5_ARM_CC_PATH               = ENV(GCC5_ARM_PREFIX)gcc
-*_GCC5_ARM_SLINK_PATH            = ENV(GCC5_ARM_PREFIX)gcc-ar
+*_GCC5_ARM_SLINK_PATH            = ar
 *_GCC5_ARM_DLINK_PATH            = ENV(GCC5_ARM_PREFIX)gcc
 *_GCC5_ARM_ASLDLINK_PATH         = ENV(GCC5_ARM_PREFIX)gcc
 *_GCC5_ARM_ASM_PATH              = ENV(GCC5_ARM_PREFIX)gcc
@@ -5560,7 +5560,7 @@ RELEASE_GCC5_ARM_DLINK_FLAGS     = DEF(GCC5_ARM_DLINK_FLAGS) -flto -Os -L$(WORKS
 # GCC5 AARCH64 definitions
 ##################
 *_GCC5_AARCH64_CC_PATH           = ENV(GCC5_AARCH64_PREFIX)gcc
-*_GCC5_AARCH64_SLINK_PATH        = ENV(GCC5_AARCH64_PREFIX)gcc-ar
+*_GCC5_AARCH64_SLINK_PATH        = ar
 *_GCC5_AARCH64_DLINK_PATH        = ENV(GCC5_AARCH64_PREFIX)gcc
 *_GCC5_AARCH64_ASLDLINK_PATH     = ENV(GCC5_AARCH64_PREFIX)gcc
 *_GCC5_AARCH64_ASM_PATH          = ENV(GCC5_AARCH64_PREFIX)gcc
