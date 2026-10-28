@@ -4643,7 +4643,7 @@ DEFINE GCC49_AARCH64_ASLDLINK_FLAGS  = DEF(GCC48_AARCH64_ASLDLINK_FLAGS)
 
 DEFINE GCC5_IA32_CC_FLAGS            = DEF(GCC49_IA32_CC_FLAGS)
 DEFINE GCC5_X64_TARGET               = -target x86_64-pc-linux-gnu
-DEFINE GCC5_X64_CC_FLAGS             = DEF(GCC49_X64_CC_FLAGS) DEF(GCC5_X64_TARGET) -Wno-error=single-bit-bitfield-constant-conversion -Wno-error=varargs
+DEFINE GCC5_X64_CC_FLAGS             = DEF(GCC49_X64_CC_FLAGS) DEF(GCC5_X64_TARGET) -Wno-error=single-bit-bitfield-constant-conversion -Wno-error=varargs -Wno-error=constant-conversion
 DEFINE GCC5_IA32_X64_DLINK_COMMON    = DEF(GCC49_IA32_X64_DLINK_COMMON)
 DEFINE GCC5_IA32_X64_ASLDLINK_FLAGS  = DEF(GCC49_IA32_X64_ASLDLINK_FLAGS)
 DEFINE GCC5_IA32_X64_DLINK_FLAGS     = DEF(GCC49_IA32_X64_DLINK_FLAGS)
@@ -5510,7 +5510,7 @@ RELEASE_GCC5_IA32_DLINK_FLAGS    = DEF(GCC5_IA32_X64_DLINK_FLAGS) -flto -Os -Wl,
 *_GCC5_X64_ASM_FLAGS             = DEF(GCC5_ASM_FLAGS) -m64 DEF(GCC5_X64_TARGET)
 *_GCC5_X64_DLINK2_FLAGS          = DEF(GCC5_X64_DLINK2_FLAGS)
 *_GCC5_X64_RC_FLAGS              = DEF(GCC_X64_RC_FLAGS)
-*_GCC5_X64_OBJCOPY_FLAGS         =
+*_GCC5_X64_OBJCOPY_FLAGS         = --set-section-flags .text=alloc,code,readonly
 *_GCC5_X64_NASM_FLAGS            = -f elf64
 
   DEBUG_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
