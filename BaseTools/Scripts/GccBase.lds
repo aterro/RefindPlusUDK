@@ -26,7 +26,7 @@ SECTIONS {
    */
   . = PECOFF_HEADER_SIZE;
 
-  .text : ALIGN(CONSTANT(COMMONPAGESIZE)) {
+  .text (READONLY) : ALIGN(CONSTANT(COMMONPAGESIZE)) {
     *(.text .text.* .stub .gnu.linkonce.t.*)
     *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.got .got.*)
