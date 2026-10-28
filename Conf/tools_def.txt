@@ -4643,7 +4643,7 @@ DEFINE GCC49_AARCH64_ASLDLINK_FLAGS  = DEF(GCC48_AARCH64_ASLDLINK_FLAGS)
 
 DEFINE GCC5_IA32_CC_FLAGS            = DEF(GCC49_IA32_CC_FLAGS)
 DEFINE GCC5_X64_TARGET               = -target x86_64-pc-linux-gnu
-DEFINE GCC5_X64_CC_FLAGS             = DEF(GCC49_X64_CC_FLAGS) DEF(GCC5_X64_TARGET) -Wno-error=single-bit-bitfield-constant-conversion -Wno-error=varargs -Wno-error=constant-conversion
+DEFINE GCC5_X64_CC_FLAGS             = DEF(GCC49_X64_CC_FLAGS) DEF(GCC5_X64_TARGET) -Wno-error=single-bit-bitfield-constant-conversion -Wno-error=varargs -Wno-error=constant-conversion -Wno-error=pragma-pack
 DEFINE GCC5_IA32_X64_DLINK_COMMON    = DEF(GCC49_IA32_X64_DLINK_COMMON)
 DEFINE GCC5_IA32_X64_ASLDLINK_FLAGS  = DEF(GCC49_IA32_X64_ASLDLINK_FLAGS)
 DEFINE GCC5_IA32_X64_DLINK_FLAGS     = DEF(GCC49_IA32_X64_DLINK_FLAGS)
@@ -5450,7 +5450,7 @@ RELEASE_GCC49_AARCH64_DLINK_FLAGS  = DEF(GCC49_AARCH64_DLINK_FLAGS)
 *_GCC5_*_*_DLL                   = ENV(GCC5_DLL)
 *_GCC5_*_ASL_PATH                = DEF(UNIX_IASL_BIN)
 
-*_GCC5_*_PP_FLAGS                = DEF(GCC_PP_FLAGS)
+*_GCC5_*_PP_FLAGS                = DEF(GCC_PP_FLAGS) -Wno-error=pragma-pack
 *_GCC5_*_ASLPP_FLAGS             = DEF(GCC_ASLPP_FLAGS)
 *_GCC5_*_ASLCC_FLAGS             = DEF(GCC_ASLCC_FLAGS)
 *_GCC5_*_VFRPP_FLAGS             = DEF(GCC_VFRPP_FLAGS)
