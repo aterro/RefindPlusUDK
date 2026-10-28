@@ -268,7 +268,13 @@ git checkout edk2-gcc
 popd > /dev/null || true
 msg_status '...OK'; echo ''
 
-ln -sf "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
+msg_base 'Update RefindPkg...'
+if [ ! -f "${BASE_DIR}/rEFInd-for-All/RefindPkg.dsc" ] ; then
+    runErr "ERROR: Could not find '${BASE_DIR}/rEFInd-for-All/RefindPkg.dsc'"
+fi
+rm -fr "${EDK2_DIR}/RefindPkg"
+ln -s "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
+msg_status '...OK'; echo ''
 
 # Build RELEASE version
 if [ "${RUN_REL}" == 'True' ] ; then
