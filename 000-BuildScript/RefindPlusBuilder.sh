@@ -289,7 +289,7 @@ if [ "${RUN_REL}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -n 1 -a X64 -b RELEASE -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp "${BINARY_DIR_REL}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-REL.efi"
     fi
@@ -322,7 +322,7 @@ if [ "${RUN_DBG}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -n 1 -a X64 -b DEBUG -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_DBG}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-DBG.efi"
     fi
@@ -355,7 +355,7 @@ if [ "${RUN_NPT}" == 'True' ] ; then
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
     pushd "${EDK2_DIR}" > /dev/null || runErr "${ErrMsg}"
     source edksetup.sh BaseTools
-    build -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
+    build -n 1 -a X64 -b NOOPT -t GCC5 -p RefindPlusPkg/RefindPlusPkg.dsc
     if [ -d "${EDK2_DIR}/Build" ] ; then
         cp -f "${BINARY_DIR_NPT}/RefindPlus.efi" "${OUTPUT_DIR}/BOOTx64-NPT.efi"
     fi
