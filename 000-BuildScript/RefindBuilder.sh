@@ -262,15 +262,19 @@ mkdir -p "${EDK2_DIR}/Build"
 mkdir -p "${OUTPUT_DIR}"
 msg_status '...OK'; echo ''
 
-msg_base 'Checkout edk2-gcc branch...'
+msg_base 'Checkout edk2-termux branch...'
 pushd "${BASE_DIR}/rEFInd-for-All" > /dev/null || runErr "ERROR: Could not enter rEFInd-for-All"
-git checkout edk2-gcc
+git fetch origin || runErr "ERROR: Could not fetch rEFInd-for-All"
+git checkout edk2-termux || runErr "ERROR: Could not checkout edk2-termux"
 popd > /dev/null || true
 msg_status '...OK'; echo ''
 
 msg_base 'Update RefindPkg...'
 if [ ! -f "${BASE_DIR}/rEFInd-for-All/RefindPkg.dsc" ] ; then
     runErr "ERROR: Could not find '${BASE_DIR}/rEFInd-for-All/RefindPkg.dsc'"
+fi
+if ! grep -q 'Wno-error=pragma-pack' "${BASE_DIR}/rEFInd-for-All/RefindPkg.dsc" ; then
+    runErr "ERROR: 'edk2-termux' branch of rEFInd-for-All not checked out"
 fi
 rm -fr "${EDK2_DIR}/RefindPkg"
 ln -s "${BASE_DIR}/rEFInd-for-All" "${EDK2_DIR}/RefindPkg"
