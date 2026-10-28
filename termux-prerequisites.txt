@@ -16,3 +16,5 @@ directory. From the edk2 directory, run:
     bash 000-BuildScript/RefindPlusBuilder.sh Full REL 1
 
 The final Release EFI is written to 000-BOOTx64-Files/BOOTx64-REL.efi.
+
+make -C BaseTools CC=clang CXX=clang++ BUILD_CC=clang BUILD_CXX=clang++ CFLAGS="-w" CXXFLAGS="-w"
