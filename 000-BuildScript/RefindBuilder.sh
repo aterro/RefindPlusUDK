@@ -21,8 +21,8 @@ COLOR_ERROR=""
 COLOR_NORMAL=""
 
 if test -t 1; then
-    NCOLORS=$(tput colors)
-    if test -n "${NCOLORS}" && test "${NCOLORS}" -ge 8; then
+    NCOLORS=$(tput colors 2>/dev/null || true)
+    if [[ "${NCOLORS}" =~ ^[0-9]+$ ]] && test "${NCOLORS}" -ge 8; then
         COLOR_BASE="\033[0;36m"
         COLOR_INFO="\033[0;33m"
         COLOR_STATUS="\033[0;32m"
@@ -30,6 +30,12 @@ if test -t 1; then
         COLOR_NORMAL="\033[0m"
     fi
 fi
+
+clear_screen() {
+    if test -t 1 && [ -n "${TERM:-}" ]; then
+        clear 2>/dev/null || true
+    fi
+}
 
 # Provide custom colours
 msg_base() {
@@ -53,7 +59,9 @@ RevertWordWrap() {
     fi
     if [ "${WORD_WRAP}" == '0' ] ; then
         # Enable WordWrap
-        tput smam
+        if test -t 1 && [ -n "${TERM:-}" ]; then
+            tput smam 2>/dev/null || true
+        fi
     fi
 }
 
@@ -102,7 +110,9 @@ DEBUG_TYPE="${2:-SOME}"
 WORD_WRAP="${3:-0}"
 if [ "${WORD_WRAP}" == '0' ] ; then
     # Disable WordWrap
-    tput rmam
+    if test -t 1 && [ -n "${TERM:-}" ]; then
+        tput rmam 2>/dev/null || true
+    fi
 fi
 
 # Force RELEASE build only
@@ -124,7 +134,7 @@ RUN_NPT="False"
 
 
 # Set things up for build
-clear
+clear_screen
 msg_info "## RefindBuilder - Setting Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------##'
 BASE_DIR="$(dirname "$(dirname "$(dirname "$(readlink -f "$0")")")")"
@@ -133,6 +143,14 @@ EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
     runErr "ERROR: Could not locate ${EDK2_DIR}"
 fi
+if [ -z "${GCC5_BIN:-}" ] ; then
+    TERMUX_PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+    if [ ! -x "${TERMUX_PREFIX}/bin/clang" ] ; then
+        runErr "ERROR: Could not find Termux clang under '${TERMUX_PREFIX}/bin'"
+    fi
+    GCC5_BIN="${TERMUX_PREFIX}/bin/"
+fi
+export GCC5_BIN
 XCODE_DIR_REL="${EDK2_DIR}/Build/Refind/RELEASE_GCC5"
 XCODE_DIR_DBG="${EDK2_DIR}/Build/Refind/DEBUG_GCC5"
 XCODE_DIR_NPT="${EDK2_DIR}/Build/Refind/NOOPT_GCC5"
@@ -159,8 +177,8 @@ Get_Sha_Str="$(find "${EDK2_DIR}/BaseTools" "${EDK2_DIR}/Conf" \
   -type f \( -name '*.c' -or -name '*.cpp' -or -name '*.h' -or -name '*.py' -or \
   -name '*.txt' -or -name '*.template' -or -name '*.makefile' -or -name 'GNUmakefile' \) \
   -print0 | sort -z | xargs -0 ${OUR_SHASUM} | ${OUR_SHASUM} | cut -d ' ' -f 1)"
-Get_Mac_Ver="$( sysctl kern.osrelease | cut -d ':' -f 2 | xargs )"
-BASETOOLS_SHA_NEW="${Get_Sha_Str}:${Get_Mac_Ver}"
+Get_Host_Ver="$(uname -sr)"
+BASETOOLS_SHA_NEW="${Get_Sha_Str}:${Get_Host_Ver}"
 BUILD_TOOLS='false'
 if [ ! -d "${EDK2_DIR}/BaseTools/Source/C/bin" ] \
 || [ "${BASETOOLS_SHA_NEW}" != "${BASETOOLS_SHA_OLD}" ] ; then
@@ -189,7 +207,7 @@ if [ "${BUILD_TOOLS}" == 'true' ] ; then
     popd > /dev/null || true
 
     OurArch="$(uname -m)"
-    if [[ "${OurArch}" == *"arm"* ]] ; then
+    if [[ "${OurArch}" == arm* || "${OurArch}" == aarch64 || "${OurArch}" == arm64 ]] ; then
         msg_base 'Create Temp BaseTools BaseType for Apple Silicon...'
         if [ -f "${BASETYPE_ORIG}" ] ; then
             cp -f "${BASETYPE_ORIG}" "${BASETYPE_TEMP}"
@@ -199,7 +217,8 @@ if [ "${BUILD_TOOLS}" == 'true' ] ; then
 
         # Apply patch if not already patched
         if grep -q '#include <ProcessorBind.h>' "${BASETYPE_TEMP}"; then
-            sed -i '' 's|#include <ProcessorBind.h>|#include "../AArch64/ProcessorBind.h"|' "${BASETYPE_TEMP}"
+            sed -i.bak 's|#include <ProcessorBind.h>|#include "../AArch64/ProcessorBind.h"|' "${BASETYPE_TEMP}"
+            rm -f "${BASETYPE_TEMP}.bak"
         fi
         msg_status '...OK'; echo ''
 
@@ -240,7 +259,7 @@ if [ "${BUILD_TOOLS}" == 'true' ] ; then
     echo "BASETOOLS_SHA_OLD='${BASETOOLS_SHA_NEW}'" >> "${BASETOOLS_SHA_FILE}"
     msg_status '...OK'; echo ''
 
-    if [[ "${OurArch}" == *"arm"* ]] ; then
+    if [[ "${OurArch}" == arm* || "${OurArch}" == aarch64 || "${OurArch}" == arm64 ]] ; then
         if [ -f "${BASETYPE_ORIG}" ] ; then
             msg_base 'Discard Temp BaseType...'
             mv -f "${BASETYPE_ORIG}" "${BASETYPE_TEMP}" || true
@@ -259,7 +278,7 @@ popd > /dev/null || true
 
 # Basic clean up
 echo ''
-clear
+clear_screen
 msg_info "## RefindBuilder - Initial Clean Up ##  :  ${BUILD_BRANCH}"
 msg_info '##--------------------------------------##'
 msg_base 'Misc Item Fixup...'
@@ -291,7 +310,7 @@ msg_status '...OK'; echo ''
 # Build RELEASE version
 if [ "${RUN_REL}" == 'True' ] ; then
     echo ''
-    clear
+    clear_screen
     msg_info "## RefindBuilder - Building REL Version ##  :  ${BUILD_BRANCH}"
     msg_info '##------------------------------------------##'
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
@@ -324,7 +343,7 @@ if [ "${RUN_DBG}" == 'True' ] ; then
         sleep 4
     fi
 
-    clear
+    clear_screen
     msg_info "## RefindBuilder - Building DBG Version ##  :  ${BUILD_BRANCH}"
     msg_info '##------------------------------------------##'
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
@@ -357,7 +376,7 @@ if [ "${RUN_NPT}" == 'True' ] ; then
         sleep 4
     fi
 
-    clear
+    clear_screen
     msg_info "## RefindBuilder - Building NPT Version ##  :  ${BUILD_BRANCH}"
     msg_info '##------------------------------------------##'
     ErrMsg="ERROR: Could not find '${EDK2_DIR}'"
