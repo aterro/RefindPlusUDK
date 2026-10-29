@@ -133,18 +133,6 @@ EDK2_DIR="${BASE_DIR}/edk2"
 if [ ! -d "${EDK2_DIR}" ] ; then
     runErr "ERROR: Could not locate ${EDK2_DIR}"
 fi
-
-# Clean the build tree and load the EDK2 environment on startup
-msg_base 'Remove EDK2 Build Directory...'
-rm -rf "${EDK2_DIR}/Build"
-msg_status '...OK'; echo ''
-
-msg_base 'Load EDK2 Environment...'
-pushd "${EDK2_DIR}" > /dev/null || runErr "ERROR: Could not enter '${EDK2_DIR}'"
-# shellcheck disable=SC1091
-source edksetup.sh BaseTools
-popd > /dev/null || true
-msg_status '...OK'; echo ''
 XCODE_DIR_REL="${EDK2_DIR}/Build/Refind/RELEASE_GCC5"
 XCODE_DIR_DBG="${EDK2_DIR}/Build/Refind/DEBUG_GCC5"
 XCODE_DIR_NPT="${EDK2_DIR}/Build/Refind/NOOPT_GCC5"
