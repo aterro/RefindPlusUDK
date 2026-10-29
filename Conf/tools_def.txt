@@ -5516,8 +5516,8 @@ RELEASE_GCC5_IA32_DLINK_FLAGS    = DEF(GCC5_IA32_X64_DLINK_FLAGS) -flto -Os -Wl,
   DEBUG_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
   DEBUG_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -Os -Wl,-z,noexecstack
 
-RELEASE_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-unused-but-set-variable -Wno-unused-const-variable -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type
-RELEASE_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -Os -Wl,-z,noexecstack
+RELEASE_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -fPIC -Os -mno-sse -mno-mmx -mno-avx -msoft-float -mno-implicit-float -fno-unwind-tables -Wno-unused-but-set-variable -Wno-unused-const-variable -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type
+RELEASE_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -Os -Wl,-z,noexecstack -Wl,--no-pie -Wl,--no-nmagic -Wl,-z,max-page-size=0x40 -Wl,-z,notext -Wl,-z,relro -Wl,--no-relax
 
   NOOPT_GCC5_X64_CC_FLAGS        = DEF(GCC5_X64_CC_FLAGS) -flto=auto -DUSING_LTO -Os -Wno-attributes -Wno-error=unused-variable -Wno-error=incompatible-pointer-types -Wno-error=return-type -Wno-error=unused-function -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
   NOOPT_GCC5_X64_DLINK_FLAGS     = DEF(GCC5_X64_DLINK_FLAGS) -flto=auto -O0 -Wl,-z,noexecstack
