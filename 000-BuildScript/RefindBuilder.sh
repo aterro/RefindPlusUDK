@@ -222,7 +222,15 @@ if [ "${BUILD_TOOLS}" == 'true' ] ; then
     fi
 
     msg_base 'Make BaseTools...'
-    make -C BaseTools/Source/C
+    BASETOOLS_CC='gcc'
+    BASETOOLS_CXX='g++'
+    if command -v clang > /dev/null 2>&1 ; then
+        BASETOOLS_CC='clang'
+        BASETOOLS_CXX='clang++'
+    fi
+    make -C BaseTools/Source/C \
+        CC="${BASETOOLS_CC}" CXX="${BASETOOLS_CXX}" \
+        BUILD_CC="${BASETOOLS_CC}" BUILD_CXX="${BASETOOLS_CXX}"
     echo '#!/usr/bin/env bash' > "${BASETOOLS_SHA_FILE}"
     echo "BASETOOLS_SHA_OLD='${BASETOOLS_SHA_NEW}'" >> "${BASETOOLS_SHA_FILE}"
     msg_status '...OK'; echo ''

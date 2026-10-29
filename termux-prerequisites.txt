@@ -3,12 +3,17 @@ Termux build prerequisites
 
 Install the required Termux packages:
 
-    pkg install clang lld llvm make nasm git python2 perl libuuid
+    pkg install clang lld llvm binutils make nasm git python2 perl libuuid
 
 The builder uses Clang to cross-compile X64 EFI code from an ARM64 Termux
 device. It also needs LLD, LLVM's ar and objcopy tools, NASM, Python 2, and
 the UUID development headers for EDK2 BaseTools. The native ARM64 GCC is not
 suitable for this X64 build.
+
+BaseTools are built with Clang. Termux's sys/types.h pulls in linux/types.h,
+which includes asm/types.h from the per-arch include directory; GCC does not
+add that directory, so using it fails with "fatal error: 'asm/types.h' file
+not found". The builder therefore prefers clang for this step.
 
 The RefindPlus source checkout must be at ../Working beside the edk2
 directory. From the edk2 directory, run:
